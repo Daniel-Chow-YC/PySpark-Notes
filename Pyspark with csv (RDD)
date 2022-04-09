@@ -1,0 +1,24 @@
+# via databricks notebook
+
+# Loading in uploaded data
+iris = sc.textFile('FileStore/tables/iris.csv')
+iris.collect()
+
+# split data based on commas
+iris = iris.map(lambda x: x.split(','))
+iris.collect()
+
+# store headers in seperate variable and remove from data set
+iris_header = iris.take(1)
+
+iris_rdd = iris.filter(lambda x: x[0] != '"sepal.length"')
+
+## Tasks
+#1. Change the order of the elements in the rdd so that you have: species, sepal_length, sepal_width, petal_length, petal_width
+#2. Create new RDDs for the following:
+    # species, sepal_length
+    # species, sepal_width
+    # species, petal_width
+#3. For species+sepal_length, calculate the sum for each species
+#4  For species+sepal_width, calculate the max for each species
+#5. For species+petal_length, calculate the average per species

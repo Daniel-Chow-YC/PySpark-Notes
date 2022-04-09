@@ -1,0 +1,79 @@
+# via databricks notebook
+
+sqlContext
+
+# Load data
+iris = sqlContext.read.load('/Filestore/tables/iris.csv', format='csv', header=True, inferSchema=True)
+
+# Displays data  
+display(iris)
+
+# view datatypes
+iris.dtypes
+
+# get the schema
+iris.printschema()
+
+# return column names
+iris.columns
+
+# display descriptive statistics of dataset
+display(iris.describe())
+
+# Retrieve specifc column data 
+iris.select("sepal_length", "sepal_width").show() # can also use display method
+display(iris.select("sepal_length", "sepal_width"))
+
+# Return distinct species
+iris.select("species").distinct().show()
+
+# display data withought species column
+display(iris.drop("species"))
+
+# Filter data
+iris.filter(iris.sepal_length > 5).show()
+
+# Filter using wildcard
+iris.filter(iris.species.like("v%")).show() 
+
+# Chaining methods - to show uniques species that start with 'v'
+iris.filter(iris.species.like("v%")).select("species").distinct().show
+
+# Display boolean to show if species starts with 'v', output substring and use alias for column header
+iris.select("*", iris.species.like("v%"), iris.species.substr(1,3).alias("SpeciesName")).show()
+
+# groupby
+display(iris.groupby("species").agg({'sepal_length':'mean','sepal_width':'max'}))
+
+# replacing data
+iris.replace('setosa, 'SA'').show()
+
+# joining dataframes
+irisavg = iris.groupby("species").agg({"sepal_length":"avg"})
+irismax = iris.groupby("species").agg({"sepal_length":"max"})
+irismax.show()
+
+irisavg.join(irismax, irisavg.species == irismax.species).show() # will display species column twice
+
+irisavg.join(irismax, "species").show() # will display species column only once
+
+# views
+iris.createOrReplaceTempView("iris")
+
+spark.sql("""
+    SELECT species, AVG(sepal_length)
+    FROM iris
+    GROUP BY species
+""").show()
+
+# convert to rdd
+irisrdd = spark.sql("""
+    SELECT species, AVG(sepal_length)
+    FROM iris
+    GROUP BY species
+""").rdd
+
+ 
+
+
+

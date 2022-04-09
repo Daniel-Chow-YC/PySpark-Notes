@@ -1,0 +1,13 @@
+# via databricks notebook
+
+location = '/Filestore/tables/nyt2.json'
+
+nyt = spark.read.json(location).rdd
+nyt.collect()
+
+nyt.first().author
+
+# Return only authors and title
+authors = nyt.map(lambda x: (x.author, x.title))
+authors.collect()
+

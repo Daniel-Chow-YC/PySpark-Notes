@@ -1,0 +1,64 @@
+# via databricks notebook
+
+# Initialize rdd
+rdd = sc.parallelize(range(1000))
+
+# Output values from rdd 
+rdd.collect()
+
+# Output first value from rdd
+rdd.first()
+
+# Output first 5 values from rdd
+rdd.take(5)
+
+# Return a sample of data
+rdd.sample(False, 0.01, 1).collect
+
+
+rdd.getNumPartitions()
+
+rdd.count()
+rdd.sum()
+rdd.max()
+rdd.stats()
+
+#------------------------------------#
+def square()x:
+    return x ** 2
+    
+rdd.map(square).take(5)
+
+# using lambda function
+rdd.map(lambda x: x ** 2).take(5)
+#------------------------------------#
+
+# Filter by values where data is divisble by 100
+rdd.filter(lamda x: x % 100 == 0).collect
+
+# chaining methods
+rdd.filter(lamda x: x % 100 == 0).map(lambda x: x ** 2).collect()
+
+# adding a key to rdd
+import random
+keyrdd = rdd.map(lambda x: (random.choice(['a','b','c']),x))
+keyrdd.take(5)
+
+# Counting by key (pyspark will take the first value as the key)
+keyrdd.countByKey()
+
+# Count for same value
+keyrdd.countByValue()
+
+# Think of x as the accumulator (or the sum) and y as the next item (to be added to the accumulator)
+keyrdd.reduceByKey(lambda x,y: x+y).collect()
+
+# 
+keyrdd.groupByKey().mapValues(list).collect()
+
+# ------ average per key ------
+# map step appends the value 1 to each item
+# reduce step sums the values to give: (key,(sum, count))
+# Finally map values to return average  
+keyrdd.mapValues(lambda x: (x, 1)).reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1])).mapValues(lambda x: x[0]/x[1]).collect()
+
